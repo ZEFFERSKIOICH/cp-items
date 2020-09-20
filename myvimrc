@@ -47,22 +47,32 @@ hi Normal guibg=NONE ctermbg=NONE
 set hlsearch
 set smartcase
 set incsearch
-set ignorecaseif empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+set ignorecase
+set showmatch
 
-call plug#begin('~/.vim/plugged')
 
-Plug 'bfrg/vim-cpp-modern'
-Plug 'scrooloose/nerdtree'
-Plug 'tpope/vim-commentary'
-Plug 'scrooloose/syntastic'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-call plug#end()
+"tab options
+" set autoindent
+" set smartindent
+" set expandtab
+" set smarttab
 
+set path+=**
+set noswapfile
+" set spell
+set hidden
+set history=100
+set confirm
+
+"Nerd tree options
+nmap <F6> :NERDTreeToggle<CR>
+"ctrl+ww to toglle between windows
+
+
+"syntastic commands
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
 set nocompatible
 filetype off
 filetype plugin indent on
@@ -88,50 +98,6 @@ set ttyfast
 set cursorline
 set number
 set mouse=a
-hi Normal guibg=NONE ctermbg=NONE
-
-
-
-"serach options
-set hlsearch
-set smartcase
-set incsearch
-set ignorecaseall plug#begin('~/.vim/plugged')
-
-Plug 'bfrg/vim-cpp-modern'
-Plug 'scrooloose/nerdtree'
-Plug 'tpope/vim-commentary'
-Plug 'scrooloose/syntastic'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-call plug#end()
-
-set nocompatible
-filetype off
-filetype plugin indent on
-set modelines=0
-set ruler
-set visualbell
-set wrap
-set textwidth=80
-
-set showmode
-set showcmd
-
-"text render 
-set display+=lastline
-set encoding=utf-8
-set scrolloff=1
-set sidescrolloff=5
-set wrap
-syntax enable 
-set ttyfast
-
-"interface options
-set cursorline
-set number
-set mouse=a
-colorscheme medic_chalk 
 hi Normal guibg=NONE ctermbg=NONE
 
 
@@ -146,24 +112,8 @@ set showmatch
 
 "tab options
 set autoindent
-set smartindent
-set expandtab
+set tabstop=4
+set softtabstop=0 noexpandtab
+set shiftwidth=4
 set smarttab
-
-set path+=**
-set noswapfile
-set spell
-set hidden
-set history=100
-set confirm
-
-"Nerd tree options
-nmap <F6> :NERDTreeToggle<CR>
-"ctrl+ww to toglle between windows
-
-
-"syntastic commands
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
 

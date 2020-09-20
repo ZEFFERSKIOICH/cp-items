@@ -1,4 +1,9 @@
-#include <bits/stdc++.h>
+#// coded by zeffy
+#pragma GCC optimize("O3","unroll-loops","omit-frame-pointer","inline") //Optimization flags
+#pragma GCC option("arch=native","tune=native","no-zeroupper") //Enable AVX
+#pragma GCC target("avx","popcnt")  //Enable AVX
+#include <x86intrin.h> //SSE Extensions
+#include <bits/stdc++.h> 
 using namespace std;
 #define eb emplace_back
 #define mp make_pair
@@ -9,183 +14,171 @@ using namespace std;
 #define dbg(s)	cout<<#s<<"= "<<s<<endl;
 typedef long long int lli;
 typedef unsigned long long int ulli;
-const int INF=INT_MAX;
-const ulli MOD=1e9+7;		
-//heavy light decomposition
-int n;
-// depth size	head pos 
-vector<int> depth,subtree_size,head,pos,heavy,parent,seg;
-vector<bool> visited;
-int cu_pos=0;
-
-void dfs(int node,int level,vector<vector<int>> &edge)		//subtree_size  depth heavy
+const lli INF=(lli)1e17+5;
+const ulli MOD=1e8+7;
+int n,q,gpos=0;
+vector<int> ss,pos,head,depth,heavy,par;
+vector<lli> v,seg;
+vector<vector<int>> edge;
+void init()
 {
-	subtree_size[node]=1;
-	depth[node]=level;
-	int maxi=INT_MIN;
-	forr(i,0,edge[node].size())
+	ss=par=head=pos=depth=vector<int> (n+1,0);
+	v=vector<lli> (n+1,0);
+	seg=vector<lli> (4*n,0);
+	heavy=vector<int> (n+1,-1);
+	edge=vector<vector<int>> (n+1);
+}
+
+void dfs(int node=1,int lvl=0,int p=0)
+{
+	ss[node]=1;
+	depth[node]=lvl+1;
+	int maxi=0;
+	for(int i:edge[node])
 	{
-		if(edge[node][i]==parent[node])	continue;
-		parent[edge[node][i]]=node;
-		dfs(edge[node][i],level+1,edge);
-		subtree_size[node]+=subtree_size[edge[node][i]];
-		int val=subtree_size[edge[node][i]];
-		if(maxi<val)
+		if(i==p) continue;
+		dfs(i,lvl+1,node);
+		par[i]=node;
+		ss[node]+=ss[i];
+		if(maxi<ss[i])
 		{
-			heavy[node]=edge[node][i];
-            maxi=val;
+			maxi=ss[i];
+			heavy[node]=i;
 		}
 	}
 }
 
 
-void decompose(int node,int h,vector<vector<int>> &edge)
+void decompose(int node=1,int h=1)
 {
-	head[node]=h;
-	pos[node]=cu_pos++;
-	
+	head[node]=h;	
+	pos[node]=gpos++;
 	if(heavy[node]!=-1)
 	{
-		decompose(heavy[node],h,edge);
+		decompose(heavy[node],h);
 	}
-	
-	forr(i,0,edge[node].size())
+
+	for(int i:edge[node])
 	{
-		if(edge[node][i]!=parent[node] && edge[node][i]!=heavy[node])
-		{
-			decompose(edge[node][i],edge[node][i],edge);
-		}
+		if(i==par[node] || i==heavy[node]) continue;
+		decompose(i,i);
 	}
-	
 }
 
-int sumseg(int l,int r)
+void build()
 {
-	l+=n;
-	r+=n;
-	int sum=0;
+	forr(i,0,n)
+	{
+		seg[pos[i+1]+n]=v[i];
+	}
+
+	for(int i=n-1;i>0;i--)
+	{
+		seg[i]=seg[i<<1]+seg[i<<1|1];
+	}
+}
+
+
+void update(int qpos,lli val)
+{
+	int npos=pos[qpos]+n;
+	seg[npos]=val;
+	for(int i=npos;i>1;i=i>>1)
+	{
+		seg[i>>1]=seg[i]+seg[i^1];
+	}
+}
+
+
+lli segquery(int l,int r)
+{
+	l+=n;r+=n;
+	lli sum=0;
 	while(l<=r)
 	{
-		if(l&1)		sum+=seg[l++];
-		if(r%2==0)	sum+=seg[r--];
+		if(l&1) 	sum+=seg[l++];
+		if(!(r&1))  sum+=seg[r--];
 		l=l>>1;r=r>>1;
 	}
 	return sum;
 }
-	
 
-int query(int l,int r)
+
+lli query(int l,int r)
 {
-	int ans=0;
-
+	lli sum=0;
 	while(head[l]!=head[r])
 	{
 		if(depth[head[l]]>depth[head[r]])
 		{
-			ans+=sumseg(pos[head[l]],pos[l]);
-			l=parent[head[l]];
+			sum+=segquery(pos[head[l]],pos[l]);
+			l=par[head[l]];
 		}
 		else
 		{
-			ans+=sumseg(pos[head[r]],pos[r]);
-			r=parent[head[r]];
+			sum+=segquery(pos[head[r]],pos[r]);
+			r=par[head[r]];
 		}
 	}
-	
+
 	if(head[l]==head[r])
 	{
-		if(depth[l]>depth[r])
+		if(pos[l]>pos[r])
 		{
-			ans+=sumseg(pos[r],pos[l]);
+			sum+=segquery(pos[r],pos[l]);
 		}
 		else
 		{
-			ans+=sumseg(pos[l],pos[r]);
+			sum+=segquery(pos[l],pos[r]);
 		}
 	}
-	return ans;
-}
-	
-		
 
-	
-	
-	
-	
-	
-	
+	return sum;
+}
+
+
+
+
+
 
 int main()
 {
-    //~ ios_base::sync_with_stdio(false);
-    //~ cin.tie(NULL);
-    //~ std::cout.precision(30);
-  
-	cout<<"enter number of nodes in the graph\n";
-	cin>>n;
-
-	depth=vector<int> (n+1,0);
-	subtree_size=vector<int> (n+1,0);
-	heavy=vector<int> (n+1,-1);
-	head=vector<int> (n+1,-1);
-	pos=vector<int> (n+1,-1);
-	parent=vector<int> (n+1,-1);
-	visited=vector<bool> (n+1,0);
-	vector<vector<int>> edge(n+1);
-	seg=vector<int> (2*n,0);
-	forr(i,0,n-1)
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    std::cout<< std::fixed;
+    std::cout.precision(6);
+    
+	cin>>n>>q;
+	init();
+	forr(i,0,n) cin>>v[i];
+	forr(i,1,n)
 	{
 		int a,b;
 		cin>>a>>b;
 		edge[a].eb(b);
 		edge[b].eb(a);
 	}
-	parent[1]=0;
-	//~ cout<<"hey1\n";
-	depth[1]=0;		//depth of root =0;
-	dfs(1,0,edge);
-	
-	
-	
-	head[1]=1;		//head of root is root itself
-	decompose(1,1,edge);
-	for(int i=1;i<=n;i++)
-	{
-		seg[pos[i]+n]=i;
-	}
-	
-	for(int i=n-1;i>0;i--)
-	{
-		seg[i]=seg[i<<1]+seg[i<<1|1];
-	}
-	cout<<"enter modification quereis\n";
-	int modi;
-	cin>>modi;
-	while(modi--)
-	{
-		int node,val;
-		cout<<"enter node and val\n";
-		cin>>node>>val;
-		int posq=pos[node]+n;
-		seg[posq]=val;
-		for(int i=posq;i>1;i=i>>1)
-		{
-			seg[i>>1]=seg[i]+seg[i^1];
-		}
-	}
-		
-		
-	
-	cout<<"enter number of queries\n";
-	int q;cin>>q;
+
+	dfs();
+	decompose();
+	build();
+
 	while(q--)
 	{
-		int l,r;
-		cin>>l>>r;
-		cout<<query(l,r)<<"\n";
+		int ch;
+		cin>>ch;
+		if(ch==1)
+		{
+			int qpos;lli val;
+			cin>>qpos>>val;
+			update(qpos,val);
+		}
+		else
+		{
+			int l,r;cin>>l>>r;
+			cout<<query(l,r)<<"\n";
+		}
 	}
-
-	return 0;
+    return 0;
 }
-
 
