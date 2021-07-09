@@ -1,0 +1,14 @@
+//0 based indexing
+struct SparseTable{
+	int n;vector<vector<lli>> tab;int LOG;
+	SparseTable(int n,vector<lli> &v):n(n){LOG=log2(n);tab=vector<vector<lli>> (LOG,vector<lli> (n,INF));
+		forr(i,0,n) tab[0][i]=v[i];build();
+	}
+	inline void build(){ //O(Nlogn)
+		for(int i=1;i<LOG;i++)	{for(int j=0;j<=n-(i<<i);j++) {tab[i][j]=min(tab[i-1][j],tab[i-1][j+(1<<(i-1))]);}}
+	}
+	inline lli query(int l,int r){
+		int rang=r-l+1;int hp=log2(rang);
+		return min(tab[hp][l],tab[hp][r+1-(1<<hp)]); //O(1) 
+	}
+};

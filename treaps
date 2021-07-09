@@ -1,0 +1,112 @@
+//0 based indexing (Remember to delete Treap when all queries are done) //Cyclic Shifts are not Implemneted
+
+struct Treap{
+	lli data,sum,lazy;ulli prior;
+	int ss;bool rev;
+	vector<Treap*> kids;Treap *par;
+	Treap(lli data):data(data){
+		ss=0,sum=0,lazy=0;rev=false;
+		mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+		prior=rng();par=NULL;kids=vector<Treap*>(2);pushup(this);
+	}
+	inline int sts(Treap *node) {if(node) return node->ss;else return 0;}
+
+	inline void pushup(Treap *node){
+		if(!node) return;
+		node->ss=1;node->sum=node->data+node->lazy;
+		tinkids{if(t)node->ss+=t->ss;}
+		tinkids{if(t)node->sum+=t->sum+t->lazy*sts(t);}
+	}
+	inline void pushdown(Treap *node){
+		if(!node) return;
+		tinkids{if(t) t->lazy+=node->lazy;}
+		node->data+=node->lazy;node->lazy=0;
+		if(node->rev) {swap(node->kids[0],node->kids[1]);
+			tinkids{if(t) t->rev^=true;}
+			node->rev=false;
+		}
+	}
+	vector<Treap*> split(Treap *node,int sizeofleft){
+		if(!node) {return {NULL,NULL};}pushdown(node);
+		if(sts(node->kids[0])>=sizeofleft){
+			vector<Treap*>leftres=split(node->kids[0],sizeofleft);
+			if(node->kids[0]) node->kids[0]->par=NULL;
+			node->kids[0]=leftres[1];
+			if(node->kids[0]) node->kids[0]->par=node;
+			pushup(node);
+			return {leftres[0],node};
+		}
+		else{
+			sizeofleft=sizeofleft-sts(node->kids[0])-1;
+			vector<Treap*>rightres=split(node->kids[1],sizeofleft);
+			if(node->kids[1]) node->kids[1]->par=NULL;
+			node->kids[1]=rightres[0];
+			if(node->kids[1]) node->kids[1]->par=node;
+			pushup(node);
+			return {node,rightres[1]};
+		}
+	}
+	Treap* merge(Treap *l,Treap *r){
+		if(!l) return r;if(!r) return l;
+		pushdown(l);pushdown(r);
+		if(l->prior<r->prior){
+			if(l->kids[1]) l->kids[1]->par=NULL;
+			l->kids[1]=merge(l->kids[1],r);
+			if(l->kids[1]) l->kids[1]->par=l;
+			pushup(l);return l;
+		}
+		else{
+			if(r->kids[0]) r->kids[0]->par=NULL;
+			r->kids[0]=merge(l,r->kids[0]);
+			if(r->kids[0]) r->kids[0]->par=r;
+			pushup(r);return r;
+		}
+	}
+
+	Treap* RangeQuery(Treap *node,int l,int r,lli& ans){
+		vector<Treap*> a=split(node,l);
+		vector<Treap*> b=split(a[1],r-l+1);
+		ans=(lli)b[0]->sum;
+		return merge(a[0],merge(b[0],b[1]));
+	}
+	Treap*  RangeAdd(Treap* node,int l,int r,lli val){
+		vector<Treap*> a=split(node,l);
+		vector<Treap*> b=split(a[1],r-l+1);
+		b[0]->lazy+=val;
+		return merge(a[0],merge(b[0],b[1]));
+	}
+	Treap* RangeRev(Treap* node,int l,int r){
+		vector<Treap*> a=split(node,l);
+		vector<Treap*> b=split(a[1],r-l+1);
+		b[0]->rev=true;
+		return merge(a[0],merge(b[0],b[1]));
+	}
+	Treap* get_root(Treap *node){
+		dbg(node->data);
+		if(!node ||  !node->par) return node;
+	    return get_root(node->par);
+	}
+	Treap* RangeDelete(Treap* node,int l,int r){
+		vector<Treap*> a=split(node,l);
+		vector<Treap*> b=split(a[1],r-l+1);
+		delete_treap(b[0]);
+		return merge(a[0],b[1]);
+	}
+	Treap* Insert(Treap* node,int pos,lli val){
+		vector<Treap*> a=split(node,pos);
+		Treap* temp=new Treap(val);
+		return merge(a[0],merge(temp,a[1]));
+	}
+
+
+	void delete_treap(Treap* root) {
+	  if (root) {
+		delete_treap(root->kids[0]);
+		delete_treap(root->kids[1]);
+		delete root;
+  	}
+ }
+
+};
+
+
