@@ -1,0 +1,38 @@
+namespace ImplicitSegTree{
+	struct Vertex{
+		Vertex *l,*r;
+		lli sum,lazy;
+		Vertex(lli data):sum(data),lazy(0),l(nullptr),r(nullptr){}
+	};
+	void push(Vertex* node,int l,int r){
+		node->sum+=(lli)(r-l+1)*(node->lazy);
+		if(node->l && node->r){
+			node->l->lazy+=node->lazy;
+			node->r->lazy+=node->lazy;
+		}
+		node->lazy=0;
+	}
+	void create_child(Vertex *node,int l,int r){
+		if(node->l) return;
+		midi;
+		node->r=new Vertex(0);
+		node->l=new Vertex(0);
+	}
+	void update(Vertex* node,int l,int r,int ql,int qr,lli val){
+		midi;create_child(node,l,r);push(node,l,r);
+		if(l>=ql && r<=qr) {node->lazy+=val;push(node,l,r);return;}
+		else if(l>qr || r<ql) return;
+		else{
+			update(node->l,l,mid,ql,qr,val);
+			update(node->r,mid+1,r,ql,qr,val);
+		}
+		node->sum=node->l->sum+node->r->sum;
+	}
+	lli query(Vertex *node,int l,int r,int ql,int qr){
+		midi;create_child(node,l,r);push(node,l,r);
+		if(l>qr || r<ql) return 0;
+		else if(l>=ql && r<=qr) return node->sum;
+		return query(node->l,l,mid,ql,qr)+query(node->r,mid+1,r,ql,qr);
+	}
+}
+

@@ -1,0 +1,7 @@
+struct fenwick{
+	int n;vector<lli> bit;
+	fenwick(int n):n(n){bit=vector<lli> (n+5,0);}
+	inline void build(int pos,lli val){while(pos<=n) {bit[pos]+=val;pos+=pos&-pos;}}
+	inline lli query(int pos){lli sum=0;while(pos>0) {sum+=bit[pos];pos-=pos&-pos;}return sum;}
+};
+

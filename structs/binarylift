@@ -1,0 +1,24 @@
+//node are indexed from 1
+struct BinaryLift{
+	int n,LOG,timer;vector<vector<int>> edge,lift;
+	vector<int> tin,tout;
+	BinaryLift(int n,vector<vector<int>> &edge):n(n),edge(edge){
+		LOG=ceil(log2(n))+1;lift=vector<vector<int>> (n+1,vector<int> (LOG,0));timer=0;
+		tin=tout=vector<int> (n+1,0);dfs(1,1);
+	}
+	void dfs(int node,int p)
+	{
+		tin[node]=timer++;
+		lift[node][0]=p;for(int i=1;i<LOG;i++){lift[node][i]=lift[lift[node][i-1]][i-1];}
+		for(int &i:edge[node]){if(i==p) continue;dfs(i,node);}
+		tout[node]=timer++;
+	}
+	inline bool is_ancestor(int a,int b){return tin[a]<=tin[b] && tout[a]>=tout[b];}
+	inline int lca(int u,int v){
+		if(is_ancestor(u,v)) return u;if(is_ancestor(v,u)) return v;
+		for(int i=LOG-1;i>=0;i--){if(!is_ancestor(lift[u][i],v)) u=lift[u][i];}
+		return lift[u][0];
+	}
+};
+
+

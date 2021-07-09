@@ -1,0 +1,25 @@
+//0 based indexing
+struct SegTree{
+	int n;vector<lli> seg;vector<lli> v;
+	SegTree(int n,vector<lli> &v):n(n),v(v){seg=vector<lli> (n*4,0);build(0,n-1,1);}
+	inline void merge(int pos){
+		seg[pos]=seg[pos<<1]+seg[pos<<1|1];
+	}
+	void build(int l,int r,int pos){
+		if(l==r) {seg[pos]=v[l];return;}
+		midi;build(l,mid,pos<<1);build(mid+1,r,pos<<1|1);merge(pos);
+	}
+	void update(int l,int r,int pos,int qpos,lli val){
+		if(l==r) {seg[pos]=val;return;}midi;
+		if(qpos>mid) update(mid+1,r,pos<<1|1,qpos,val);
+		else update(l,mid,pos<<1,qpos,val);
+		merge(pos);
+	}
+	inline lli query(int l,int r,int pos,int ql,int qr){
+		if(l>qr || r<ql) return 0;
+		if(l>=ql && r<=qr) return seg[pos];midi;
+		return query(l,mid,pos<<1,ql,qr)+query(mid+1,r,pos<<1|1,ql,qr);
+	}
+};
+
+

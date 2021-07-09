@@ -1,0 +1,40 @@
+struct SegTree{
+	int n;vector<lli> seg,lazy,v;
+	SegTree(vector<lli> &v,int n):n(n),v(v){lazy=seg=vector<lli> (4*n,0);build(0,n-1,1);}
+	inline void merge(int pos){
+		seg[pos]=seg[pos<<1]+seg[pos<<1|1];
+	}
+	inline void prop(int pos,int l,int r){
+		if(lazy[pos]==0) return;if(l==r) {seg[pos]+=lazy[pos];lazy[pos]=0;return;}
+		seg[pos]+=lazy[pos]*(r-l+1);
+		lazy[pos<<1]+=lazy[pos];lazy[pos<<1|1]+=lazy[pos];lazy[pos]=0;return ;
+	}
+	void build(int l,int r,int pos){
+		if(l==r) {seg[pos]=v[l];return;}midi;
+		build(l,mid,pos<<1);build(mid+1,r,pos<<1|1);
+		merge(pos);
+	}
+	void update(int l,int r,int pos,int ql,int qr,lli val){
+		prop(pos,l,r);midi;
+		if(l>qr || r<ql) return;
+		if(l>=ql && r<=qr) {lazy[pos]+=val;prop(pos,l,r);return;}
+		update(l,mid,pos<<1,ql,qr,val);update(mid+1,r,pos<<1|1,ql,qr,val);
+		merge(pos);
+	}
+	void update(int l,int r,int pos,int qpos,lli val){
+		prop(pos,l,r);
+		if(l==r) {seg[pos]=val;return;}midi;
+		if(qpos<=mid) update(l,mid,pos<<1,qpos,val);
+		else update(mid+1,r,pos<<1|1,qpos,val);
+		merge(pos);
+	}
+	lli query(int l,int r,int pos,int ql,int qr){
+		prop(pos,l,r);
+		if(l>qr || r<ql) return 0;
+		if(l>=ql && r<=qr) return seg[pos];midi;
+		return query(l,mid,pos<<1,ql,qr)+query(mid+1,r,pos<<1|1,ql,qr);
+	}
+		
+};
+
+
