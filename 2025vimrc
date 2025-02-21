@@ -1,0 +1,141 @@
+
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+
+Plug 'morhetz/gruvbox'
+Plug 'junegunn/fzf',{'do':{->fzf#install()}}
+Plug 'junegunn/fzf.vim'
+Plug 'bfrg/vim-cpp-modern'
+Plug 'scrooloose/nerdtree'
+Plug 'tpope/vim-commentary'
+Plug 'scrooloose/syntastic'
+Plug 'octol/vim-cpp-enhanced-highlight'
+call plug#end()
+
+
+" Theme setting 
+colorscheme gruvbox
+set background=dark
+
+" My 	aliases
+let mapleader = " "
+nmap <leader>ne :NERDTree<cr>
+nmap <leader>f :Files<cr>
+
+
+
+
+set foldcolumn=1
+
+set nocompatible
+filetype off
+filetype plugin indent on
+set modelines=0
+set ruler
+set visualbell
+set wrap
+set textwidth=120
+
+
+set showmode
+set showcmd
+
+
+
+"text render 
+set display+=lastline
+set encoding=utf-8
+set scrolloff=1
+set sidescrolloff=5
+set wrap
+syntax enable 
+set ttyfast
+
+"interface options
+set cursorline
+set number
+set mouse=a
+hi Normal guibg=NONE ctermbg=NONE
+
+
+
+"serach options
+set hlsearch
+set smartcase
+set incsearch
+set ignorecase
+set showmatch
+
+
+
+"tab options
+" set autoindent
+" set smartindent
+" set expandtab
+" set smarttab
+
+set path+=**
+set noswapfile
+" set spell
+set hidden
+set history=100
+set confirm
+
+
+set nocompatible
+filetype off
+filetype plugin indent on
+set modelines=0
+set ruler
+set visualbell
+set wrap
+
+set showmode
+set showcmd
+
+"text render 
+set display+=lastline
+set encoding=utf-8
+set scrolloff=1
+set sidescrolloff=5
+set wrap
+syntax enable 
+set ttyfast
+
+"interface options
+set cursorline
+set number
+set mouse=a
+hi Normal guibg=NONE ctermbg=NONE
+
+
+
+"serach options
+set hlsearch
+set smartcase
+set incsearch
+set ignorecase
+set showmatch
+
+
+"tab options
+set autoindent
+set tabstop=4
+set softtabstop=0 noexpandtab
+set shiftwidth=4
+set smarttab
+
+set clipboard=unnamed
+
+" My Comments to operate vimrc ======================================
+" Important commands
+" source % : after every udpdate in vimrc file
+" PlugInistall to install plugins
+" PlugClean after removing from Vimplug and reopen vim
+" also check alias section
+
